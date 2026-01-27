@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Cores Primárias - Verde Sage */
+    --primary-sage: #7E9690;
+    --primary-sage-light: #A8BCB6;
+    --primary-sage-dark: #6A7F7A;
+
+    /* Cores Secundárias - Rosa Suave */
+    --secondary-rose: #e2bbbe;
+    --secondary-rose-light: #f0d5d8;
+    --secondary-rose-dark: #d4a5a9;
+
+    /* Neutras */
+    --neutral-snow: #FAFAFF;
+    --neutral-cream: #FAF8F3;
+    --neutral-white: #FFFFFF;
+
+    /* Texto */
+    --text-primary: #2D2D2D;
+    --text-secondary: #6B6B6B;
+    --text-light: #9B9B9B;
+  }
+
+  body {
+    @apply bg-neutral-snow text-text-primary;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    position: relative;
+  }
+
+  /* Textura de ruído sutil para sensação premium (papel artesanal) */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.06;
+    z-index: 1;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+
+  /* Garantir que o conteúdo fique acima do ruído */
+  #__next, #__next > * {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
