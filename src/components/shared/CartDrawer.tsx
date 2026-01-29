@@ -94,7 +94,7 @@ Pode me ajudar a finalizar?`
 
   return (
     <Sheet open={isOpen} onOpenChange={closeCart}>
-      <SheetContent side="right" className="w-full sm:max-w-lg flex flex-col h-screen max-h-screen overflow-hidden p-0 bg-glass-white">
+      <SheetContent side="right" className="w-full sm:max-w-lg flex flex-col h-screen max-h-screen overflow-hidden p-0 bg-white">
         <SheetHeader className="shrink-0 p-6 pb-4">
           <SheetTitle className="flex items-center gap-2 font-primary text-2xl font-light text-secondary-rose">
             <ShoppingBag className="w-6 h-6" />
@@ -190,7 +190,7 @@ Pode me ajudar a finalizar?`
             </div>
 
             {/* Footer with Subtotal and Checkout - Fixed at bottom */}
-            <div className="shrink-0 space-y-3 px-6 pt-4 pb-14 border-t bg-glass-white backdrop-blur-lg shadow-soft-lg">
+            <div className="shrink-0 space-y-3 px-6 pt-4 pb-14 border-t bg-white shadow-soft-lg">
               <div className="flex justify-between items-center">
                 <span className="font-secondary font-semibold text-text-primary">
                   Subtotal:
