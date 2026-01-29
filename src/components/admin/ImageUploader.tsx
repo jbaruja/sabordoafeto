@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-browser'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -46,7 +46,18 @@ export function ImageUploader({
   )
   const [cropImage, setCropImage] = useState<string | null>(null)
   const [cropImageId, setCropImageId] = useState<string | null>(null)
+  const [pendingFeatured, setPendingFeatured] = useState<string | undefined>(featuredImage)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // useEffect para notificar o componente pai das mudanças (evita setState durante render)
+  useEffect(() => {
+    const urls = imageList.filter((img) => img.url && !img.uploading).map((img) => img.url!)
+    const currentFeatured = pendingFeatured || urls[0]
+    // Só notifica se houver alguma URL
+    if (urls.length > 0 || images.length > 0) {
+      onChange(urls, currentFeatured)
+    }
+  }, [imageList, pendingFeatured])
 
   // Função para redimensionar imagem antes do crop (evita problemas de memória no iOS)
   const resizeImageForCrop = (file: File, maxSize: number = 1200): Promise<string> => {
@@ -177,20 +188,13 @@ export function ImageUploader({
       } = supabase.storage.from('product-images').getPublicUrl(data.path)
 
       // Atualizar lista com URL
-      setImageList((prev) => {
-        const updated = prev.map((img) =>
+      setImageList((prev) =>
+        prev.map((img) =>
           img.id === imageId
             ? { ...img, url: publicUrl, uploading: false }
             : img
         )
-
-        // Notificar mudança
-        const urls = updated.filter((img) => img.url).map((img) => img.url!)
-        const currentFeatured = featuredImage || urls[0]
-        onChange(urls, currentFeatured)
-
-        return updated
-      })
+      )
     } catch (error: any) {
       console.error('Erro ao fazer upload:', error)
       alert('Erro ao fazer upload da imagem: ' + error.message)
@@ -202,19 +206,14 @@ export function ImageUploader({
   }
 
   const handleRemove = (imageId: string) => {
-    setImageList((prev) => {
-      const updated = prev.filter((img) => img.id !== imageId)
-      const urls = updated.filter((img) => img.url).map((img) => img.url!)
+    // Se removeu a imagem destacada, atualiza o pendingFeatured
+    const removedImage = imageList.find((img) => img.id === imageId)
+    if (removedImage?.url === pendingFeatured) {
+      const remaining = imageList.filter((img) => img.id !== imageId && img.url)
+      setPendingFeatured(remaining[0]?.url)
+    }
 
-      // Se removeu a imagem destacada, seleciona a primeira
-      let newFeatured = featuredImage
-      if (prev.find((img) => img.id === imageId)?.url === featuredImage) {
-        newFeatured = urls[0]
-      }
-
-      onChange(urls, newFeatured)
-      return updated
-    })
+    setImageList((prev) => prev.filter((img) => img.id !== imageId))
   }
 
   const handleEdit = (image: ImageData) => {
@@ -223,7 +222,7 @@ export function ImageUploader({
   }
 
   const handleSetFeatured = (imageUrl: string) => {
-    onChange(imageList.filter((img) => img.url).map((img) => img.url!), imageUrl)
+    setPendingFeatured(imageUrl)
   }
 
   return (
@@ -233,9 +232,9 @@ export function ImageUploader({
         {imageList.map((image) => (
           <Card
             key={image.id}
-            className={`relative aspect-square overflow-hidden rounded-modern border-2 ${image.url === featuredImage
-                ? 'border-secondary-rose shadow-soft'
-                : 'border-primary-sage/20'
+            className={`relative aspect-square overflow-hidden rounded-modern border-2 ${image.url === pendingFeatured
+              ? 'border-secondary-rose shadow-soft'
+              : 'border-primary-sage/20'
               }`}
           >
             {/* Preview da imagem */}
@@ -255,7 +254,7 @@ export function ImageUploader({
               >
                 <Edit className="w-4 h-4" />
               </Button>
-              {image.url && image.url !== featuredImage && (
+              {image.url && image.url !== pendingFeatured && (
                 <Button
                   size="sm"
                   onClick={() => handleSetFeatured(image.url!)}
@@ -275,7 +274,7 @@ export function ImageUploader({
             </div>
 
             {/* Badge de imagem destacada */}
-            {image.url === featuredImage && (
+            {image.url === pendingFeatured && (
               <div className="absolute top-2 left-2 bg-secondary-rose text-white px-2 py-1 rounded text-xs font-secondary font-medium flex items-center gap-1">
                 <Star className="w-3 h-3 fill-current" />
                 Destaque
@@ -294,6 +293,7 @@ export function ImageUploader({
         {/* Botão para adicionar mais imagens */}
         {imageList.length < maxImages && (
           <button
+            type="button"
             onClick={() => fileInputRef.current?.click()}
             className="aspect-square border-2 border-dashed border-primary-sage/30 rounded-modern bg-glass-cream hover:bg-primary-sage-light/10 transition-colors flex flex-col items-center justify-center gap-2 text-text-secondary hover:text-secondary-rose"
           >

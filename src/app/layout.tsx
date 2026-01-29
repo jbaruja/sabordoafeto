@@ -20,9 +20,6 @@ export const metadata: Metadata = {
   title: "Sabor do Afeto - Biscoiteria Artesanal",
   description: "Biscoitos artesanais únicos e personalizados",
   keywords: ["biscoitos artesanais", "biscoitos", "amanteigados", "presentes personalizados"],
-  icons: {
-    icon: '/favicon.ico',
-  },
 };
 
 export default function RootLayout({

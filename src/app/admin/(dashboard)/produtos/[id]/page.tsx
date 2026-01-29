@@ -231,7 +231,7 @@ export default function EditProductPage() {
                 value={formData.name}
                 onChange={handleChange}
                 onBlur={generateSlug}
-                placeholder="Ex: Bolo de Chocolate Artesanal"
+                placeholder="Ex: Biscoito de Chocolate Artesanal"
                 className="h-12 border-2"
                 required
               />
@@ -248,7 +248,7 @@ export default function EditProductPage() {
                   name="slug"
                   value={formData.slug}
                   onChange={handleChange}
-                  placeholder="bolo-de-chocolate-artesanal"
+                  placeholder="biscoito-de-chocolate-artesanal"
                   className="h-12 border-2"
                   required
                 />

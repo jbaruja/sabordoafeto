@@ -13,26 +13,21 @@ const nextConfig = {
     ],
   },
 
-  // Otimizações AGRESSIVAS de performance
+  // Otimizações de performance
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
 
-  // Reduzir bundle size
-  swcMinify: true,
-
   // Experimental features para melhor performance
   experimental: {
     optimizePackageImports: ['lucide-react', 'date-fns', '@supabase/supabase-js', '@supabase/ssr'],
-    optimizeCss: true,
-    scrollRestoration: true,
   },
 
   // Otimizar build
   productionBrowserSourceMaps: false,
 
-  // Webpack optimizations AGRESSIVAS
-  webpack: (config, { dev, isServer }) => {
+  // Webpack optimizations
+  webpack: (config, { dev }) => {
     // Otimizar cache
     config.cache = {
       type: 'filesystem',
@@ -50,21 +45,8 @@ const nextConfig = {
       }
     }
 
-    // Ignorar source maps em desenvolvimento
-    if (dev) {
-      config.devtool = false
-    }
-
-    // Resolver aliases para imports mais rápidos
-    config.resolve.alias = {
-      ...config.resolve.alias,
-    }
-
     return config
   },
-
-  // Desabilitar telemetria
-  telemetry: false,
 
   // Otimizar dev server
   onDemandEntries: {
