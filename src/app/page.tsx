@@ -1,38 +1,53 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Heart, Gift, Sparkles } from 'lucide-react'
+import { ArrowRight, Heart, Gift, Sparkles, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ProductCard } from '@/components/shared/ProductCard'
+import { createClient } from '@/lib/supabase-browser'
+import { Product } from '@/lib/supabase'
 
 export default function Home() {
-  // Produtos em destaque (mock - depois vamos buscar do Supabase)
-  const featuredProducts = [
-    {
-      id: '1',
-      name: 'Cesta Gourmet Premium',
-      description: 'Seleção especial de produtos artesanais',
-      price: 189.0,
-    },
-    {
-      id: '2',
-      name: 'Brownie Artesanal',
-      description: 'Feito com chocolate belga premium',
-      price: 45.0,
-    },
-    {
-      id: '3',
-      name: 'Kit Café da Manhã',
-      description: 'Perfeito para momentos especiais',
-      price: 120.0,
-    },
-    {
-      id: '4',
-      name: 'Cesta Romântica',
-      description: 'Tudo para surpreender quem você ama',
-      price: 159.0,
-    },
-  ]
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchFeaturedProducts() {
+      console.log('🔄 Iniciando busca de produtos em destaque...')
+      try {
+        const supabase = createClient()
+
+        // Primeiro tenta buscar produtos marcados como destaque
+        let { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('is_available', true)
+          .eq('is_featured', true)
+          .order('created_at', { ascending: false })
+          .limit(4)
+
+        console.log('📦 Resposta do Supabase:', { data, error })
+
+        if (error) {
+          console.error('❌ Erro do Supabase:', error)
+          throw error
+        }
+
+        console.log(`✅ Carregados ${data?.length || 0} produtos`)
+        setFeaturedProducts(data || [])
+      } catch (error) {
+        console.error('💥 Erro ao carregar produtos:', error)
+        setFeaturedProducts([])
+      } finally {
+        console.log('⏹ Finalizando loading...')
+        setLoading(false)
+      }
+    }
+
+    fetchFeaturedProducts()
+  }, [])
+
 
   return (
     <div className="flex flex-col">
@@ -112,16 +127,28 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {featuredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                id={product.id}
-                name={product.name}
-                description={product.description}
-                price={product.price}
-                image={product.image}
-              />
-            ))}
+            {loading ? (
+              <div className="col-span-full flex justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-secondary-rose" />
+              </div>
+            ) : featuredProducts.length > 0 ? (
+              featuredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  id={product.id}
+                  name={product.name}
+                  description={product.description || ''}
+                  price={product.price}
+                  image={product.featured_image || product.images?.[0]}
+                />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="font-secondary text-text-secondary">
+                  Em breve novos produtos
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="text-center">

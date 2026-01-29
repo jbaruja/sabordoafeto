@@ -28,7 +28,14 @@
       "Bash(rm:*)",
       "Bash(cd:*)",
       "Bash(kill:*)",
-      "Bash(netstat:*)"
+      "Bash(netstat:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(cat:*)",
+      "Bash(wc:*)",
+      "Bash(git fetch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }

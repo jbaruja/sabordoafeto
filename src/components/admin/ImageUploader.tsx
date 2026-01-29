@@ -48,7 +48,46 @@ export function ImageUploader({
   const [cropImageId, setCropImageId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Função para redimensionar imagem antes do crop (evita problemas de memória no iOS)
+  const resizeImageForCrop = (file: File, maxSize: number = 1200): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const img = new Image()
+        img.onload = () => {
+          // Se a imagem for pequena o suficiente, retorna original
+          if (img.width <= maxSize && img.height <= maxSize) {
+            resolve(e.target?.result as string)
+            return
+          }
+
+          // Calcula escala mantendo proporção
+          const scale = Math.min(maxSize / img.width, maxSize / img.height)
+          const canvas = document.createElement('canvas')
+          canvas.width = Math.floor(img.width * scale)
+          canvas.height = Math.floor(img.height * scale)
+
+          const ctx = canvas.getContext('2d')
+          if (!ctx) {
+            resolve(e.target?.result as string)
+            return
+          }
+
+          // Desenha imagem redimensionada
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+
+          // Converte para base64
+          resolve(canvas.toDataURL('image/jpeg', 0.9))
+        }
+        img.onerror = () => reject(new Error('Falha ao carregar imagem'))
+        img.src = e.target?.result as string
+      }
+      reader.onerror = () => reject(new Error('Falha ao ler arquivo'))
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
 
     if (imageList.length + files.length > maxImages) {
@@ -56,11 +95,13 @@ export function ImageUploader({
       return
     }
 
-    files.forEach((file) => {
-      const reader = new FileReader()
-      reader.onload = () => {
+    // Processar apenas o primeiro arquivo por vez para evitar problemas de memória
+    for (const file of files) {
+      try {
         const id = `new-${Date.now()}-${Math.random()}`
-        const preview = reader.result as string
+
+        // Redimensionar imagem antes de abrir o crop (evita travamento no iOS)
+        const preview = await resizeImageForCrop(file)
 
         setImageList((prev) => [
           ...prev,
@@ -75,9 +116,14 @@ export function ImageUploader({
         // Abrir modal de crop automaticamente para nova imagem
         setCropImage(preview)
         setCropImageId(id)
+
+        // Processar uma imagem por vez
+        break
+      } catch (error) {
+        console.error('Erro ao processar imagem:', error)
+        alert('Erro ao processar a imagem. Tente outra.')
       }
-      reader.readAsDataURL(file)
-    })
+    }
 
     // Reset input
     if (fileInputRef.current) {
@@ -187,11 +233,10 @@ export function ImageUploader({
         {imageList.map((image) => (
           <Card
             key={image.id}
-            className={`relative aspect-square overflow-hidden rounded-modern border-2 ${
-              image.url === featuredImage
+            className={`relative aspect-square overflow-hidden rounded-modern border-2 ${image.url === featuredImage
                 ? 'border-secondary-rose shadow-soft'
                 : 'border-primary-sage/20'
-            }`}
+              }`}
           >
             {/* Preview da imagem */}
             <img

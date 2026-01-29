@@ -29,6 +29,7 @@ export type Product = {
   tags: string[] | null
   stock_quantity: number
   is_available: boolean
+  is_featured: boolean
   images: string[]
   featured_image: string | null
   ingredients: string[] | null

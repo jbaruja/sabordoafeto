@@ -59,8 +59,20 @@ export function ImageCropModal({
       throw new Error('No 2d context')
     }
 
-    const maxSize = Math.max(image.width, image.height)
-    const safeArea = 2 * ((maxSize / 2) * Math.sqrt(2))
+    // Limitar tamanho máximo para evitar problemas de memória no iOS Safari
+    // iOS Safari tem limite de ~16MP para canvas
+    const MAX_CANVAS_SIZE = 2048
+    const originalWidth = image.width
+    const originalHeight = image.height
+
+    // Escalar imagem se for muito grande
+    const scale = Math.min(1, MAX_CANVAS_SIZE / Math.max(originalWidth, originalHeight))
+    const scaledWidth = originalWidth * scale
+    const scaledHeight = originalHeight * scale
+
+    const maxSize = Math.max(scaledWidth, scaledHeight)
+    // Usar safeArea menor para economizar memória
+    const safeArea = Math.ceil(maxSize * 1.42) // sqrt(2) ≈ 1.414
 
     canvas.width = safeArea
     canvas.height = safeArea
@@ -69,29 +81,43 @@ export function ImageCropModal({
     ctx.rotate((rotation * Math.PI) / 180)
     ctx.translate(-safeArea / 2, -safeArea / 2)
 
+    // Desenhar imagem escalada
     ctx.drawImage(
       image,
-      safeArea / 2 - image.width * 0.5,
-      safeArea / 2 - image.height * 0.5
+      0, 0, originalWidth, originalHeight,
+      safeArea / 2 - scaledWidth * 0.5,
+      safeArea / 2 - scaledHeight * 0.5,
+      scaledWidth,
+      scaledHeight
     )
 
     const data = ctx.getImageData(0, 0, safeArea, safeArea)
 
-    canvas.width = pixelCrop.width
-    canvas.height = pixelCrop.height
+    // Ajustar área de crop para a escala
+    const scaledCrop = {
+      x: pixelCrop.x * scale,
+      y: pixelCrop.y * scale,
+      width: pixelCrop.width * scale,
+      height: pixelCrop.height * scale,
+    }
+
+    canvas.width = scaledCrop.width
+    canvas.height = scaledCrop.height
 
     ctx.putImageData(
       data,
-      0 - safeArea / 2 + image.width * 0.5 - pixelCrop.x,
-      0 - safeArea / 2 + image.height * 0.5 - pixelCrop.y
+      0 - safeArea / 2 + scaledWidth * 0.5 - scaledCrop.x,
+      0 - safeArea / 2 + scaledHeight * 0.5 - scaledCrop.y
     )
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       canvas.toBlob((blob) => {
         if (blob) {
           resolve(blob)
+        } else {
+          reject(new Error('Falha ao criar imagem'))
         }
-      }, 'image/jpeg', 0.9)
+      }, 'image/jpeg', 0.85)
     })
   }
 

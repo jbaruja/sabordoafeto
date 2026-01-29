@@ -36,6 +36,7 @@ export default function NewProductPage() {
     tags: '',
     stock_quantity: '0',
     is_available: true,
+    is_featured: false,
     images: [] as string[],
     featured_image: '',
     ingredients: '',
@@ -113,6 +114,7 @@ export default function NewProductPage() {
           : [],
         stock_quantity: parseInt(formData.stock_quantity) || 0,
         is_available: formData.is_available,
+        is_featured: formData.is_featured,
         featured_image: formData.featured_image || null,
         images: formData.images || [],
         ingredients: formData.ingredients
@@ -390,6 +392,32 @@ export default function NewProductPage() {
                   Separadas por vírgula
                 </p>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-glass-white backdrop-blur-lg border-0 shadow-soft rounded-modern-lg overflow-hidden">
+          <CardContent className="p-6 space-y-6">
+            <h2 className="font-primary text-xl font-light text-text-primary border-b border-primary-sage/10 pb-3">
+              Destaque na Homepage
+            </h2>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  name="is_featured"
+                  checked={formData.is_featured}
+                  onChange={handleChange}
+                  className="w-5 h-5 rounded border-2 border-input text-secondary-rose focus:ring-secondary-rose"
+                />
+                <span className="font-secondary text-sm text-text-primary">
+                  Exibir como destaque na página inicial
+                </span>
+              </div>
+              <p className="font-secondary text-xs text-text-secondary">
+                Produtos marcados como destaque aparecem na seção &quot;Produtos em Destaque&quot; da página inicial
+              </p>
             </div>
           </CardContent>
         </Card>

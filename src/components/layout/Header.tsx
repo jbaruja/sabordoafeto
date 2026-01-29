@@ -23,9 +23,11 @@ const navigation = [
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   const { getTotalItems, openCart } = useCartStore()
 
   useEffect(() => {
+    setIsMounted(true)
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10)
     }
@@ -34,14 +36,14 @@ export function Header() {
   }, [])
 
   const whatsappLink = 'https://wa.me/5547991044121?text=Olá! Gostaria de fazer um pedido'
+  const cartItemCount = isMounted ? getTotalItems() : 0
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-        isScrolled
-          ? 'bg-neutral-snow/80 backdrop-blur-xl shadow-soft-lg'
-          : 'bg-neutral-snow/90 backdrop-blur-md'
-      }`}
+      className={`sticky top-0 z-50 w-full transition-all duration-300 ${isScrolled
+        ? 'bg-neutral-snow/80 backdrop-blur-xl shadow-soft-lg'
+        : 'bg-neutral-snow/90 backdrop-blur-md'
+        }`}
     >
       <div className="container mx-auto px-4">
         <div className="flex h-20 items-center justify-between">
@@ -75,9 +77,9 @@ export function Header() {
               onClick={openCart}
             >
               <ShoppingBag className="h-5 w-5" />
-              {getTotalItems() > 0 && (
+              {cartItemCount > 0 && (
                 <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-secondary-rose text-white text-xs flex items-center justify-center font-secondary font-bold">
-                  {getTotalItems()}
+                  {cartItemCount}
                 </span>
               )}
             </Button>
@@ -101,9 +103,9 @@ export function Header() {
               onClick={openCart}
             >
               <ShoppingBag className="h-5 w-5" />
-              {getTotalItems() > 0 && (
+              {cartItemCount > 0 && (
                 <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-secondary-rose text-white text-xs flex items-center justify-center font-secondary font-bold">
-                  {getTotalItems()}
+                  {cartItemCount}
                 </span>
               )}
             </Button>

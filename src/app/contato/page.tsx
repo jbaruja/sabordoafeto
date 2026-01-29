@@ -18,13 +18,13 @@ export default function ContatoPage() {
     {
       icon: MapPin,
       title: 'Endereço',
-      content: 'Curitiba, PR',
-      link: null,
+      content: 'R. Paulo Facheti, 248 - Sala 2 - Lídia Duarte, Camboriú - SC',
+      link: https://maps.app.goo.gl/K5EAwSceEUWZDY2c9,
     },
     {
       icon: Clock,
       title: 'Horário de Funcionamento',
-      content: 'Seg-Sex: 9h-18h | Sáb: 9h-14h',
+      content: 'Seg-Sex: 9h-18h | Sáb: 9h-12h',
       link: null,
     },
   ]
@@ -151,10 +151,12 @@ export default function ContatoPage() {
         <div className="text-center space-y-4">
           <MapPin className="w-16 h-16 text-primary-sage mx-auto" />
           <p className="font-secondary text-text-secondary">
-            Localização: Curitiba, PR
+            Localização: Camboriú, SC
           </p>
           <p className="font-secondary text-sm text-text-light">
-            (Mapa do Google Maps será adicionado em breve)
+            <a href="https://maps.app.goo.gl/K5EAwSceEUWZDY2c9" target="_blank" rel="noopener noreferrer">
+              Ver no Google Maps
+            </a>
           </p>
         </div>
       </section>
