@@ -1,6 +1,7 @@
 'use client'
 
-import { Gift } from 'lucide-react'
+import { useState } from 'react'
+import { Gift, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useCartStore } from '@/stores/cartStore'
@@ -12,6 +13,7 @@ interface ProductCardProps {
   price: number
   category?: string
   image?: string
+  images?: string[]
   onViewDetails?: () => void
 }
 
@@ -22,9 +24,18 @@ export function ProductCard({
   price,
   category,
   image,
+  images,
   onViewDetails,
 }: ProductCardProps) {
   const { addItem, openCart } = useCartStore()
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  // Combinar imagens: usar o array 'images' se existir, senão usar 'image' como fallback
+  const allImages = images && images.length > 0
+    ? images
+    : image
+      ? [image]
+      : []
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -39,26 +50,82 @@ export function ProductCard({
       name,
       price,
       quantity: 1,
-      image,
+      image: allImages[0] || image,
     })
     // Abrir carrinho automaticamente
     openCart()
   }
 
+  const nextImage = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setCurrentImageIndex((prev) =>
+      prev === allImages.length - 1 ? 0 : prev + 1
+    )
+  }
+
+  const prevImage = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? allImages.length - 1 : prev - 1
+    )
+  }
+
+  const goToImage = (index: number, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setCurrentImageIndex(index)
+  }
+
   return (
     <Card className="group bg-glass-white backdrop-blur-lg border-0 shadow-soft hover:shadow-float hover:-translate-y-2 transition-all duration-300 cursor-pointer rounded-modern-lg overflow-hidden">
       <CardContent className="p-0">
-        {/* Imagem do Produto */}
+        {/* Imagem do Produto com Carrossel */}
         <div
-          className="aspect-square bg-primary-sage-light/15 flex items-center justify-center overflow-hidden"
+          className="aspect-square bg-primary-sage-light/15 flex items-center justify-center overflow-hidden relative"
           onClick={onViewDetails}
         >
-          {image ? (
-            <img
-              src={image}
-              alt={name}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform"
-            />
+          {allImages.length > 0 ? (
+            <>
+              <img
+                src={allImages[currentImageIndex]}
+                alt={`${name} - Imagem ${currentImageIndex + 1}`}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+              />
+
+              {/* Setas de navegação (aparecem apenas se houver mais de 1 imagem) */}
+              {allImages.length > 1 && (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Imagem anterior"
+                  >
+                    <ChevronLeft className="w-4 h-4 text-text-primary" />
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Próxima imagem"
+                  >
+                    <ChevronRight className="w-4 h-4 text-text-primary" />
+                  </button>
+
+                  {/* Indicadores de pontos */}
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    {allImages.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={(e) => goToImage(index, e)}
+                        className={`w-2 h-2 rounded-full transition-all ${index === currentImageIndex
+                            ? 'bg-secondary-rose w-4'
+                            : 'bg-white/70 hover:bg-white'
+                          }`}
+                        aria-label={`Ver imagem ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
           ) : (
             <Gift className="w-24 h-24 text-primary-sage/30 group-hover:scale-110 transition-transform" />
           )}

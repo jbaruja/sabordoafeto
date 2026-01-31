@@ -15,6 +15,7 @@ type Product = {
   price: number
   category: string
   featured_image: string
+  images: string[]
   is_available: boolean
 }
 
@@ -42,7 +43,7 @@ export default function ProdutosPage() {
       // Buscar produtos disponíveis
       const { data: productsData, error: productsError } = await supabase
         .from('products')
-        .select('id, name, description, short_description, price, category, featured_image, is_available')
+        .select('id, name, description, short_description, price, category, featured_image, images, is_available')
         .eq('is_available', true)
         .order('name', { ascending: true })
 
@@ -160,6 +161,7 @@ export default function ProdutosPage() {
                     price={product.price}
                     category={product.category}
                     image={product.featured_image}
+                    images={product.images}
                   />
                 ))}
               </div>
