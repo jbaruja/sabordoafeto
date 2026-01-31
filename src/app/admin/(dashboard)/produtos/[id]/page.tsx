@@ -6,9 +6,17 @@ import { createClient } from '@/lib/supabase-browser'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ArrowLeft, Save, Loader2, AlertCircle } from 'lucide-react'
+import { ArrowLeft, Save, Loader2, AlertCircle, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { SimpleImageUploader } from '@/components/admin/SimpleImageUploader'
+import { CategoryModal } from '@/components/admin/CategoryModal'
+
+type Category = {
+  id: string
+  name: string
+  slug: string
+  description: string
+}
 
 type Product = {
   id: string
@@ -36,6 +44,8 @@ export default function EditProductPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [categories, setCategories] = useState<Category[]>([])
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
 
   const [formData, setFormData] = useState({
     name: '',
@@ -57,7 +67,23 @@ export default function EditProductPage() {
 
   useEffect(() => {
     fetchProduct()
+    fetchCategories()
   }, [productId])
+
+  const fetchCategories = async () => {
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('product_categories')
+        .select('*')
+        .order('name', { ascending: true })
+
+      if (error) throw error
+      setCategories(data || [])
+    } catch (error: any) {
+      console.error('Erro ao buscar categorias:', error)
+    }
+  }
 
   const fetchProduct = async () => {
     try {
@@ -408,22 +434,30 @@ export default function EditProductPage() {
                 <label className="font-secondary text-sm font-medium text-text-primary">
                   Categoria <span className="text-red-500">*</span>
                 </label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="w-full h-12 px-4 rounded-modern border-2 border-input bg-background font-secondary text-sm focus:outline-none focus:ring-2 focus:ring-secondary-rose"
-                  required
-                >
-                  <option value="">Selecione uma categoria</option>
-                  <option value="bolos">Bolos</option>
-                  <option value="tortas">Tortas</option>
-                  <option value="doces">Doces</option>
-                  <option value="salgados">Salgados</option>
-                  <option value="paes">Pães</option>
-                  <option value="bebidas">Bebidas</option>
-                  <option value="outros">Outros</option>
-                </select>
+                <div className="flex gap-2">
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                    className="flex-1 h-12 px-4 rounded-modern border-2 border-input bg-background font-secondary text-sm focus:outline-none focus:ring-2 focus:ring-secondary-rose"
+                    required
+                  >
+                    <option value="">Selecione uma categoria</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.slug}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    type="button"
+                    onClick={() => setIsCategoryModalOpen(true)}
+                    variant="outline"
+                    className="border-2 border-secondary-rose text-secondary-rose hover:bg-secondary-rose hover:text-white"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
 
               {/* Tags */}
@@ -564,6 +598,16 @@ export default function EditProductPage() {
           </Button>
         </div>
       </form>
+
+      {/* Category Modal */}
+      <CategoryModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        onSuccess={() => {
+          fetchCategories()
+          setIsCategoryModalOpen(false)
+        }}
+      />
     </div>
   )
 }
