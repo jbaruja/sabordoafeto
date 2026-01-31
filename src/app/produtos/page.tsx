@@ -1,87 +1,80 @@
 'use client'
 
-import { Gift, Search } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Gift, Search, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ProductCard } from '@/components/shared/ProductCard'
+import { createClient } from '@/lib/supabase-browser'
+
+type Product = {
+  id: string
+  name: string
+  description: string
+  short_description: string
+  price: number
+  category: string
+  featured_image: string
+  is_available: boolean
+}
+
+type Category = {
+  id: string
+  name: string
+  slug: string
+}
 
 export default function ProdutosPage() {
-  // Mock de produtos - depois vamos buscar do Supabase
-  const products = [
-    {
-      id: '1',
-      name: 'Cesta Gourmet Premium',
-      description: 'Seleção especial de produtos artesanais com vinhos, queijos e frutas secas',
-      price: 189.0,
-      category: 'Cestas',
-      image: '',
-    },
-    {
-      id: '2',
-      name: 'Brownie Artesanal',
-      description: 'Feito com chocolate belga premium e nozes selecionadas',
-      price: 45.0,
-      category: 'Doces',
-      image: '',
-    },
-    {
-      id: '3',
-      name: 'Kit Café da Manhã',
-      description: 'Perfeito para momentos especiais com pães, geleia, café e suco',
-      price: 120.0,
-      category: 'Kits',
-      image: '',
-    },
-    {
-      id: '4',
-      name: 'Cesta Romântica',
-      description: 'Tudo para surpreender quem você ama com chocolates e flores',
-      price: 159.0,
-      category: 'Cestas',
-      image: '',
-    },
-    {
-      id: '5',
-      name: 'Cookies Artesanais',
-      description: 'Caixa com 12 cookies de diversos sabores',
-      price: 35.0,
-      category: 'Doces',
-      image: '',
-    },
-    {
-      id: '6',
-      name: 'Cesta Gourmet Deluxe',
-      description: 'Nossa cesta mais completa com importados premium',
-      price: 289.0,
-      category: 'Cestas',
-      image: '',
-    },
-    {
-      id: '7',
-      name: 'Kit Presente Corporativo',
-      description: 'Ideal para presentear clientes e parceiros',
-      price: 149.0,
-      category: 'Kits',
-      image: '',
-    },
-    {
-      id: '8',
-      name: 'Bolo no Pote',
-      description: 'Delicioso bolo em camadas no pote individual',
-      price: 25.0,
-      category: 'Doces',
-      image: '',
-    },
-  ]
+  const [products, setProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedCategory, setSelectedCategory] = useState('todos')
+  const [searchTerm, setSearchTerm] = useState('')
 
-  const categories = ['Todos', 'Cestas', 'Doces', 'Kits']
+  useEffect(() => {
+    fetchData()
+  }, [])
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(price)
+  const fetchData = async () => {
+    try {
+      const supabase = createClient()
+
+      // Buscar produtos disponíveis
+      const { data: productsData, error: productsError } = await supabase
+        .from('products')
+        .select('id, name, description, short_description, price, category, featured_image, is_available')
+        .eq('is_available', true)
+        .order('name', { ascending: true })
+
+      if (productsError) throw productsError
+
+      // Buscar categorias
+      const { data: categoriesData, error: categoriesError } = await supabase
+        .from('product_categories')
+        .select('id, name, slug')
+        .order('name', { ascending: true })
+
+      if (categoriesError) throw categoriesError
+
+      setProducts(productsData || [])
+      setCategories(categoriesData || [])
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error)
+    } finally {
+      setLoading(false)
+    }
   }
+
+  // Filtrar produtos por categoria e busca
+  const filteredProducts = products.filter((product) => {
+    const matchesCategory =
+      selectedCategory === 'todos' || product.category === selectedCategory
+    const matchesSearch =
+      searchTerm === '' ||
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    return matchesCategory && matchesSearch
+  })
 
   return (
     <div className="min-h-screen bg-neutral-snow">
@@ -109,22 +102,36 @@ export default function ProdutosPage() {
               <Input
                 placeholder="Buscar produtos..."
                 className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
             {/* Categorias */}
             <div className="flex gap-2 flex-wrap justify-center">
+              <Button
+                onClick={() => setSelectedCategory('todos')}
+                variant={selectedCategory === 'todos' ? 'default' : 'outline'}
+                className={
+                  selectedCategory === 'todos'
+                    ? 'bg-gradient-to-b from-secondary-rose to-secondary-rose-dark hover:from-secondary-rose-dark hover:to-[#c99196] text-white shadow-soft'
+                    : 'border-primary-sage text-primary-sage hover:bg-primary-sage hover:text-white'
+                }
+              >
+                Todos
+              </Button>
               {categories.map((category) => (
                 <Button
-                  key={category}
-                  variant={category === 'Todos' ? 'default' : 'outline'}
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.slug)}
+                  variant={selectedCategory === category.slug ? 'default' : 'outline'}
                   className={
-                    category === 'Todos'
+                    selectedCategory === category.slug
                       ? 'bg-gradient-to-b from-secondary-rose to-secondary-rose-dark hover:from-secondary-rose-dark hover:to-[#c99196] text-white shadow-soft'
                       : 'border-primary-sage text-primary-sage hover:bg-primary-sage hover:text-white'
                   }
                 >
-                  {category}
+                  {category.name}
                 </Button>
               ))}
             </div>
@@ -137,28 +144,36 @@ export default function ProdutosPage() {
         {/* Linha sutil de separação */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-sage/10 to-transparent"></div>
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                id={product.id}
-                name={product.name}
-                description={product.description}
-                price={product.price}
-                category={product.category}
-                image={product.image}
-              />
-            ))}
-          </div>
-
-          {/* Mensagem se não houver produtos */}
-          {products.length === 0 && (
-            <div className="text-center py-20">
-              <Gift className="w-16 h-16 text-text-light mx-auto mb-4" />
-              <p className="font-secondary text-text-secondary text-lg">
-                Nenhum produto encontrado
-              </p>
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 text-secondary-rose animate-spin" />
             </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    name={product.name}
+                    description={product.short_description || product.description}
+                    price={product.price}
+                    category={product.category}
+                    image={product.featured_image}
+                  />
+                ))}
+              </div>
+
+              {/* Mensagem se não houver produtos */}
+              {filteredProducts.length === 0 && (
+                <div className="text-center py-20">
+                  <Gift className="w-16 h-16 text-text-light mx-auto mb-4" />
+                  <p className="font-secondary text-text-secondary text-lg">
+                    Nenhum produto encontrado
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
