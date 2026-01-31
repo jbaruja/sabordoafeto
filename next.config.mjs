@@ -26,27 +26,8 @@ const nextConfig = {
   // Otimizar build
   productionBrowserSourceMaps: false,
 
-  // Webpack optimizations
-  webpack: (config, { dev }) => {
-    // Otimizar cache
-    config.cache = {
-      type: 'filesystem',
-      compression: 'gzip',
-      maxAge: 604800000, // 1 week
-    }
-
-    // Reduzir bundle splitting em dev
-    if (dev) {
-      config.optimization = {
-        ...config.optimization,
-        runtimeChunk: false,
-        splitChunks: false,
-        minimize: false,
-      }
-    }
-
-    return config
-  },
+  // Turbopack config (Next.js 16+)
+  turbopack: {},
 
   // Otimizar dev server
   onDemandEntries: {
