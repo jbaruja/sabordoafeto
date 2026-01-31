@@ -13,12 +13,14 @@ import {
   Menu,
   X,
   Heart,
+  Settings,
 } from 'lucide-react'
 
 const navigation = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
   { name: 'Produtos', href: '/admin/produtos', icon: Package },
   { name: 'Carrinhos', href: '/admin/carrinhos', icon: ShoppingCart },
+  { name: 'Ajustes', href: '/admin/ajustes', icon: Settings },
 ]
 
 export default function AdminLayout({
@@ -107,10 +109,9 @@ export default function AdminLayout({
                   className={`
                     flex items-center gap-3 px-4 py-3 rounded-modern font-secondary text-sm
                     transition-all duration-200
-                    ${
-                      isActive
-                        ? 'bg-secondary-rose text-white shadow-soft'
-                        : 'text-text-primary hover:bg-primary-sage-light/10 hover:text-secondary-rose'
+                    ${isActive
+                      ? 'bg-secondary-rose text-white shadow-soft'
+                      : 'text-text-primary hover:bg-primary-sage-light/10 hover:text-secondary-rose'
                     }
                   `}
                 >

@@ -136,10 +136,12 @@ export default function Home() {
                   key={product.id}
                   id={product.id}
                   name={product.name}
-                  description={product.description || ''}
+                  description={product.short_description || product.description || ''}
                   price={product.price}
+                  category={product.category}
                   image={product.featured_image || product.images?.[0]}
                   images={product.images}
+                  variant="featured"
                 />
               ))
             ) : (

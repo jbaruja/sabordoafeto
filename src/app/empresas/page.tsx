@@ -1,9 +1,52 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Building2, Brain, Users, Share2, Heart, Sparkles, MessageCircle } from 'lucide-react'
+import { Building2, Brain, Users, Share2, Heart, Sparkles, MessageCircle, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { ProductCard } from '@/components/shared/ProductCard'
+import { createClient } from '@/lib/supabase-browser'
+
+type Product = {
+    id: string
+    name: string
+    description: string
+    short_description: string
+    price: number
+    category: string
+    featured_image: string
+    images: string[]
+    is_available: boolean
+}
 
 export default function EmpresasPage() {
+    const [corporateProducts, setCorporateProducts] = useState<Product[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        fetchCorporateProducts()
+    }, [])
+
+    const fetchCorporateProducts = async () => {
+        try {
+            const supabase = createClient()
+            const { data, error } = await supabase
+                .from('products')
+                .select('id, name, description, short_description, price, category, featured_image, images, is_available')
+                .eq('is_available', true)
+                .eq('category', 'corporativo')
+                .order('name', { ascending: true })
+
+            if (error) throw error
+            setCorporateProducts(data || [])
+        } catch (error) {
+            console.error('Erro ao buscar produtos corporativos:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     const benefits = [
         {
             icon: Brain,
@@ -96,8 +139,59 @@ export default function EmpresasPage() {
                 </div>
             </section>
 
-            {/* Imagem com Quote */}
+            {/* Produtos Corporativos */}
             <section className="py-24 bg-white relative">
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-sage/20 to-transparent"></div>
+
+                <div className="container mx-auto px-4">
+                    <div className="max-w-6xl mx-auto">
+                        {/* Header da Seção */}
+                        <div className="text-center mb-12">
+                            <h2 className="font-primary text-3xl md:text-4xl font-light text-text-primary mb-3">
+                                Linha Corporativo
+                            </h2>
+                            <p className="font-secondary text-text-secondary max-w-2xl mx-auto">
+                                Presentes personalizados para fortalecer relacionamentos empresariais
+                            </p>
+                            <div className="mt-4 w-20 h-1 bg-gradient-to-r from-primary-sage to-secondary-rose mx-auto rounded-full"></div>
+                        </div>
+
+                        {/* Grid de Produtos */}
+                        {loading ? (
+                            <div className="flex items-center justify-center py-16">
+                                <Loader2 className="w-8 h-8 text-primary-sage animate-spin" />
+                            </div>
+                        ) : corporateProducts.length > 0 ? (
+                            <div className={`${corporateProducts.length < 4
+                                    ? 'flex flex-wrap justify-center gap-6'
+                                    : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
+                                }`}>
+                                {corporateProducts.map((product) => (
+                                    <div key={product.id} className={corporateProducts.length < 4 ? 'w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] max-w-[300px]' : ''}>
+                                        <ProductCard
+                                            id={product.id}
+                                            name={product.name}
+                                            description={product.short_description || product.description}
+                                            price={product.price}
+                                            image={product.featured_image}
+                                            images={product.images}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12">
+                                <p className="font-secondary text-text-secondary">
+                                    Em breve novos produtos para empresas
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </section>
+
+            {/* Imagem com Quote */}
+            <section className="py-24 bg-neutral-snow relative">
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-sage/20 to-transparent"></div>
 
                 <div className="container mx-auto px-4">
@@ -147,7 +241,7 @@ export default function EmpresasPage() {
                         </div>
 
                         <div className="grid md:grid-cols-2 gap-6">
-                            {benefits.map((benefit, index) => (
+                            {benefits.map((benefit) => (
                                 <div
                                     key={benefit.title}
                                     className="bg-white backdrop-blur-lg border border-primary-sage/10 shadow-soft hover:shadow-float hover:-translate-y-1 transition-all duration-300 p-8 rounded-modern-lg"
@@ -242,7 +336,7 @@ export default function EmpresasPage() {
                                     variant="outline"
                                     className="border-2 border-white text-white hover:bg-white/10"
                                 >
-                                    Ver Nossos Produtos
+                                    Ver Todos os Produtos
                                 </Button>
                             </Link>
                         </div>

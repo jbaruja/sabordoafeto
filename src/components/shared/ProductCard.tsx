@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, TouchEvent } from 'react'
+import Link from 'next/link'
 import { Gift, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -15,6 +16,7 @@ interface ProductCardProps {
   image?: string
   images?: string[]
   onViewDetails?: () => void
+  variant?: 'default' | 'featured'  // Nova prop para variante
 }
 
 export function ProductCard({
@@ -26,6 +28,7 @@ export function ProductCard({
   image,
   images,
   onViewDetails,
+  variant = 'default',
 }: ProductCardProps) {
   const { addItem, openCart } = useCartStore()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -41,13 +44,6 @@ export function ProductCard({
     : image
       ? [image]
       : []
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(price)
-  }
 
   const handleAddToCart = () => {
     addItem({
@@ -109,6 +105,11 @@ export function ProductCard({
     touchEndX.current = null
   }
 
+  // Link para a categoria do produto na página de produtos
+  const categoryLink = category
+    ? `/produtos#category-${category}`
+    : '/produtos'
+
   return (
     <Card className="group bg-glass-white backdrop-blur-lg border-0 shadow-soft hover:shadow-float hover:-translate-y-2 transition-all duration-300 cursor-pointer rounded-modern-lg overflow-hidden">
       <CardContent className="p-0">
@@ -154,8 +155,8 @@ export function ProductCard({
                         key={index}
                         onClick={(e) => goToImage(index, e)}
                         className={`w-2 h-2 rounded-full transition-all ${index === currentImageIndex
-                            ? 'bg-secondary-rose w-4'
-                            : 'bg-white/70 hover:bg-white'
+                          ? 'bg-secondary-rose w-4'
+                          : 'bg-white/70 hover:bg-white'
                           }`}
                         aria-label={`Ver imagem ${index + 1}`}
                       />
@@ -171,13 +172,6 @@ export function ProductCard({
 
         {/* Informações do Produto */}
         <div className="p-6 space-y-3">
-          {/* Categoria */}
-          {category && (
-            <span className="inline-block px-3 py-1 bg-primary-sage-light/20 text-primary-sage text-xs font-secondary font-medium rounded-full">
-              {category}
-            </span>
-          )}
-
           {/* Nome */}
           <h3
             className="font-primary text-xl font-light text-text-primary group-hover:text-secondary-rose transition-colors line-clamp-2"
@@ -191,34 +185,55 @@ export function ProductCard({
             {description}
           </p>
 
-          {/* Preço e Ações */}
-          <div className="pt-3 space-y-3">
-            <p className="font-secondary text-secondary-rose">
-              <span className="text-lg font-medium">R$</span>
-              <span className="text-3xl font-bold ml-1">
-                {price.toFixed(2).replace('.', ',')}
-              </span>
-            </p>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                className="flex-1 bg-gradient-to-b from-secondary-rose to-secondary-rose-dark hover:from-secondary-rose-dark hover:to-[#c99196] text-white shadow-soft"
-                onClick={handleAddToCart}
-              >
-                Adicionar
-              </Button>
-              {onViewDetails && (
+          {/* Variante Featured (sem preço, só "Ver mais") */}
+          {variant === 'featured' ? (
+            <div className="pt-3">
+              <Link href={categoryLink}>
                 <Button
                   size="sm"
-                  variant="outline"
-                  className="flex-1 border-primary-sage text-primary-sage hover:bg-primary-sage hover:text-white"
-                  onClick={onViewDetails}
+                  className="w-full bg-gradient-to-b from-secondary-rose to-secondary-rose-dark hover:from-secondary-rose-dark hover:to-[#c99196] text-white shadow-soft"
                 >
-                  Ver Detalhes
+                  Ver mais
                 </Button>
-              )}
+              </Link>
             </div>
-          </div>
+          ) : (
+            /* Variante Default (com preço e botões) */
+            <div className="pt-3 space-y-3">
+              {/* Categoria */}
+              {category && (
+                <span className="inline-block px-3 py-1 bg-primary-sage-light/20 text-primary-sage text-xs font-secondary font-medium rounded-full">
+                  {category}
+                </span>
+              )}
+
+              <p className="font-secondary text-secondary-rose">
+                <span className="text-lg font-medium">R$</span>
+                <span className="text-3xl font-bold ml-1">
+                  {price.toFixed(2).replace('.', ',')}
+                </span>
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  className="flex-1 bg-gradient-to-b from-secondary-rose to-secondary-rose-dark hover:from-secondary-rose-dark hover:to-[#c99196] text-white shadow-soft"
+                  onClick={handleAddToCart}
+                >
+                  Adicionar
+                </Button>
+                {onViewDetails && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 border-primary-sage text-primary-sage hover:bg-primary-sage hover:text-white"
+                    onClick={onViewDetails}
+                  >
+                    Ver Detalhes
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
