@@ -14,6 +14,7 @@ export default function ProdutosPage() {
       description: 'Seleção especial de produtos artesanais com vinhos, queijos e frutas secas',
       price: 189.0,
       category: 'Cestas',
+      image: '',
     },
     {
       id: '2',
@@ -21,6 +22,7 @@ export default function ProdutosPage() {
       description: 'Feito com chocolate belga premium e nozes selecionadas',
       price: 45.0,
       category: 'Doces',
+      image: '',
     },
     {
       id: '3',
@@ -28,6 +30,7 @@ export default function ProdutosPage() {
       description: 'Perfeito para momentos especiais com pães, geleia, café e suco',
       price: 120.0,
       category: 'Kits',
+      image: '',
     },
     {
       id: '4',
@@ -35,6 +38,7 @@ export default function ProdutosPage() {
       description: 'Tudo para surpreender quem você ama com chocolates e flores',
       price: 159.0,
       category: 'Cestas',
+      image: '',
     },
     {
       id: '5',
@@ -42,6 +46,7 @@ export default function ProdutosPage() {
       description: 'Caixa com 12 cookies de diversos sabores',
       price: 35.0,
       category: 'Doces',
+      image: '',
     },
     {
       id: '6',
@@ -49,6 +54,7 @@ export default function ProdutosPage() {
       description: 'Nossa cesta mais completa com importados premium',
       price: 289.0,
       category: 'Cestas',
+      image: '',
     },
     {
       id: '7',
@@ -56,6 +62,7 @@ export default function ProdutosPage() {
       description: 'Ideal para presentear clientes e parceiros',
       price: 149.0,
       category: 'Kits',
+      image: '',
     },
     {
       id: '8',
@@ -63,6 +70,7 @@ export default function ProdutosPage() {
       description: 'Delicioso bolo em camadas no pote individual',
       price: 25.0,
       category: 'Doces',
+      image: '',
     },
   ]
 
