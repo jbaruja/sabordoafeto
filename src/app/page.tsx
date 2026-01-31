@@ -67,13 +67,12 @@ export default function Home() {
             </div>
 
             <h1 className="font-primary text-5xl md:text-7xl font-light text-text-primary">
-              Cada biscoito carrega um pedaço de{' '}
-              <span className="text-secondary-rose font-normal">carinho</span>
+              Biscoitos feitos à mão para os encontros que{' '}
+              <span className="text-secondary-rose font-normal">ficam na memória</span>
             </h1>
 
             <p className="font-secondary text-lg md:text-xl text-text-secondary max-w-2xl mx-auto">
-              Presentes artesanais únicos e personalizados que levam carinho,
-              cuidado e sabor para quem você ama.
+              Resgatamos o sabor das lembranças de família em receitas artesanais, criadas para acompanhar os seus melhores momentos e abraçar quem você quer bem.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
@@ -181,16 +180,10 @@ export default function Home() {
               </div>
               <div className="order-1 md:order-2 space-y-6">
                 <h2 className="font-primary text-4xl md:text-5xl font-light text-text-primary">
-                  Feito com carinho, entregue com afeto
+                  A alegria da nossa cozinha para a sua mesa.
                 </h2>
                 <p className="font-secondary text-lg text-text-secondary">
-                  Cada produto é cuidadosamente preparado de forma artesanal,
-                  pensando em transmitir o seu afeto através de sabores únicos e
-                  embalagens especiais.
-                </p>
-                <p className="font-secondary text-lg text-text-secondary">
-                  Mais do que presentes, criamos experiências que aquecem o
-                  coração e fortalecem laços.
+                  Acreditamos que um biscoito nunca é apenas um biscoito. Ele é o cenário para uma conversa, o brilho nos olhos de quem ganha um presente e a certeza de que alguém dedicou tempo e cuidado para te fazer um agrado. Nossas receitas carregam o respeito e a alegria que cultivamos em casa, prontos para fazer parte da sua história.
                 </p>
                 <Link href="/sobre">
                   <Button

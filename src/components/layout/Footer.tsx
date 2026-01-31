@@ -15,8 +15,7 @@ export function Footer() {
               Sabor do Afeto
             </h3>
             <p className="font-secondary text-sm text-text-secondary max-w-xs">
-              Transforme afeto em sabor com presentes artesanais únicos e
-              personalizados.
+              Biscoitos artesanais para os encontros que ficam na memória.
             </p>
           </div>
 
