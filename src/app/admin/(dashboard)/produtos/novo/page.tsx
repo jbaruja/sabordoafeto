@@ -73,6 +73,21 @@ export default function NewProductPage() {
     }))
   }
 
+  // Handler especial para campos de preço (aceita vírgula como decimal)
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    // Permite números, vírgula e ponto
+    const sanitized = value.replace(/[^0-9.,]/g, '')
+    setFormData((prev) => ({ ...prev, [name]: sanitized }))
+  }
+
+  // Converte preço do formato brasileiro para número
+  const parsePrice = (value: string): number => {
+    if (!value) return 0
+    // Substitui vírgula por ponto para parsear
+    return parseFloat(value.replace(',', '.')) || 0
+  }
+
   const generateSlug = () => {
     if (formData.name) {
       const slug = formData.name
@@ -104,9 +119,9 @@ export default function NewProductPage() {
         slug: formData.slug,
         short_description: formData.short_description || null,
         description: formData.description || null,
-        price: parseFloat(formData.price),
+        price: parsePrice(formData.price),
         compare_at_price: formData.compare_at_price
-          ? parseFloat(formData.compare_at_price)
+          ? parsePrice(formData.compare_at_price)
           : null,
         category: formData.category,
         tags: formData.tags
@@ -267,13 +282,11 @@ export default function NewProductPage() {
                   Preço <span className="text-red-500">*</span>
                 </label>
                 <Input
-                  type="number"
+                  type="text"
                   name="price"
                   value={formData.price}
-                  onChange={handleChange}
-                  placeholder="0.00"
-                  step="0.01"
-                  min="0"
+                  onChange={handlePriceChange}
+                  placeholder="25,50"
                   className="h-12 border-2"
                   required
                 />
@@ -285,13 +298,11 @@ export default function NewProductPage() {
                   Preço Original (opcional)
                 </label>
                 <Input
-                  type="number"
+                  type="text"
                   name="compare_at_price"
                   value={formData.compare_at_price}
-                  onChange={handleChange}
-                  placeholder="0.00"
-                  step="0.01"
-                  min="0"
+                  onChange={handlePriceChange}
+                  placeholder="35,00"
                   className="h-12 border-2"
                 />
                 <p className="font-secondary text-xs text-text-secondary">
