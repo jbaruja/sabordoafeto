@@ -140,6 +140,7 @@ export default function Home() {
                   description={product.description || ''}
                   price={product.price}
                   image={product.featured_image || product.images?.[0]}
+                  images={product.images}
                 />
               ))
             ) : (

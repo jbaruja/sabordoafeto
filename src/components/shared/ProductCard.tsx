@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, TouchEvent } from 'react'
 import { Gift, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -30,6 +30,11 @@ export function ProductCard({
   const { addItem, openCart } = useCartStore()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
+  // Touch swipe support
+  const touchStartX = useRef<number | null>(null)
+  const touchEndX = useRef<number | null>(null)
+  const minSwipeDistance = 50
+
   // Combinar imagens: usar o array 'images' se existir, senão usar 'image' como fallback
   const allImages = images && images.length > 0
     ? images
@@ -56,15 +61,15 @@ export function ProductCard({
     openCart()
   }
 
-  const nextImage = (e: React.MouseEvent) => {
-    e.stopPropagation()
+  const nextImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
     setCurrentImageIndex((prev) =>
       prev === allImages.length - 1 ? 0 : prev + 1
     )
   }
 
-  const prevImage = (e: React.MouseEvent) => {
-    e.stopPropagation()
+  const prevImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
     setCurrentImageIndex((prev) =>
       prev === 0 ? allImages.length - 1 : prev - 1
     )
@@ -75,20 +80,53 @@ export function ProductCard({
     setCurrentImageIndex(index)
   }
 
+  // Touch handlers para swipe
+  const onTouchStart = (e: TouchEvent) => {
+    touchEndX.current = null
+    touchStartX.current = e.targetTouches[0].clientX
+  }
+
+  const onTouchMove = (e: TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX
+  }
+
+  const onTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return
+
+    const distance = touchStartX.current - touchEndX.current
+    const isLeftSwipe = distance > minSwipeDistance
+    const isRightSwipe = distance < -minSwipeDistance
+
+    if (isLeftSwipe && allImages.length > 1) {
+      nextImage()
+    }
+    if (isRightSwipe && allImages.length > 1) {
+      prevImage()
+    }
+
+    // Reset
+    touchStartX.current = null
+    touchEndX.current = null
+  }
+
   return (
     <Card className="group bg-glass-white backdrop-blur-lg border-0 shadow-soft hover:shadow-float hover:-translate-y-2 transition-all duration-300 cursor-pointer rounded-modern-lg overflow-hidden">
       <CardContent className="p-0">
-        {/* Imagem do Produto com Carrossel */}
+        {/* Imagem do Produto com Carrossel e Swipe */}
         <div
-          className="aspect-square bg-primary-sage-light/15 flex items-center justify-center overflow-hidden relative"
+          className="aspect-square bg-primary-sage-light/15 flex items-center justify-center overflow-hidden relative touch-pan-y"
           onClick={onViewDetails}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
           {allImages.length > 0 ? (
             <>
               <img
                 src={allImages[currentImageIndex]}
                 alt={`${name} - Imagem ${currentImageIndex + 1}`}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform pointer-events-none select-none"
+                draggable={false}
               />
 
               {/* Setas de navegação (aparecem apenas se houver mais de 1 imagem) */}
@@ -96,14 +134,14 @@ export function ProductCard({
                 <>
                   <button
                     onClick={prevImage}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity hidden md:block"
                     aria-label="Imagem anterior"
                   >
                     <ChevronLeft className="w-4 h-4 text-text-primary" />
                   </button>
                   <button
                     onClick={nextImage}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity hidden md:block"
                     aria-label="Próxima imagem"
                   >
                     <ChevronRight className="w-4 h-4 text-text-primary" />
