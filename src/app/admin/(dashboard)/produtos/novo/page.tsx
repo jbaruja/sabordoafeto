@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { ArrowLeft, Save, Loader2, AlertCircle, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { CategoryModal } from '@/components/admin/CategoryModal'
-import { ImageUploader } from '@/components/admin/ImageUploader'
+import { SimpleImageUploader } from '@/components/admin/SimpleImageUploader'
 
 type Category = {
   id: string
@@ -429,7 +429,7 @@ export default function NewProductPage() {
             </h2>
 
             {/* Image Uploader */}
-            <ImageUploader
+            <SimpleImageUploader
               images={formData.images}
               featuredImage={formData.featured_image}
               onChange={(images, featuredImage) => {

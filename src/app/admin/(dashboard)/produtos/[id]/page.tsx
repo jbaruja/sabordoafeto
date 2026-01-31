@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ArrowLeft, Save, Loader2, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
+import { SimpleImageUploader } from '@/components/admin/SimpleImageUploader'
 
 type Product = {
   id: string
@@ -48,6 +49,7 @@ export default function EditProductPage() {
     stock_quantity: '0',
     is_available: true,
     is_featured: false,
+    images: [] as string[],
     featured_image: '',
     ingredients: '',
     allergens: '',
@@ -81,6 +83,7 @@ export default function EditProductPage() {
           stock_quantity: data.stock_quantity?.toString() || '0',
           is_available: data.is_available ?? true,
           is_featured: data.is_featured ?? false,
+          images: data.images || [],
           featured_image: data.featured_image || '',
           ingredients: data.ingredients?.join(', ') || '',
           allergens: data.allergens?.join(', ') || '',
@@ -148,7 +151,7 @@ export default function EditProductPage() {
         is_available: formData.is_available,
         is_featured: formData.is_featured,
         featured_image: formData.featured_image || null,
-        images: formData.featured_image ? [formData.featured_image] : [],
+        images: formData.images || [],
         ingredients: formData.ingredients
           ? formData.ingredients.split(',').map((i) => i.trim()).filter(Boolean)
           : [],
@@ -465,33 +468,19 @@ export default function EditProductPage() {
               Imagens e Detalhes
             </h2>
 
-            {/* Imagem Destacada */}
-            <div className="space-y-2">
-              <label className="font-secondary text-sm font-medium text-text-primary">
-                URL da Imagem Destacada
-              </label>
-              <Input
-                type="url"
-                name="featured_image"
-                value={formData.featured_image}
-                onChange={handleChange}
-                placeholder="https://exemplo.com/imagem.jpg"
-                className="h-12 border-2"
-              />
-              {formData.featured_image && (
-                <div className="mt-4 w-full max-w-xs">
-                  <img
-                    src={formData.featured_image}
-                    alt="Preview"
-                    className="w-full h-48 object-cover rounded-modern border-2 border-primary-sage/10"
-                    onError={(e) => {
-                      e.currentTarget.src = ''
-                      e.currentTarget.alt = 'Erro ao carregar imagem'
-                    }}
-                  />
-                </div>
-              )}
-            </div>
+            {/* Image Uploader */}
+            <SimpleImageUploader
+              images={formData.images}
+              featuredImage={formData.featured_image}
+              onChange={(images, featuredImage) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  images,
+                  featured_image: featuredImage || images[0] || '',
+                }))
+              }}
+              maxImages={5}
+            />
 
             {/* Ingredientes */}
             <div className="space-y-2">
