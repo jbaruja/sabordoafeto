@@ -19,7 +19,7 @@ export default function ContatoPage() {
       icon: MapPin,
       title: 'Endereço',
       content: 'R. Paulo Facheti, 248 - Sala 2 - Lídia Duarte, Camboriú - SC',
-      link: https://maps.app.goo.gl/K5EAwSceEUWZDY2c9,
+      link: 'https://maps.app.goo.gl/K5EAwSceEUWZDY2c9',
     },
     {
       icon: Clock,
