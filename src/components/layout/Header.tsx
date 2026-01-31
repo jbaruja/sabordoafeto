@@ -16,6 +16,7 @@ import { useCartStore } from '@/stores/cartStore'
 const navigation = [
   { name: 'Início', href: '/' },
   { name: 'Produtos', href: '/produtos' },
+  { name: 'Empresas', href: '/empresas' },
   { name: 'Sobre', href: '/sobre' },
   { name: 'Contato', href: '/contato' },
 ]
