@@ -67,8 +67,8 @@ export default function Home() {
             </div>
 
             <h1 className="font-primary text-5xl md:text-7xl font-light text-text-primary">
-              Transforme afeto em{' '}
-              <span className="text-secondary-rose font-normal">sabor</span>
+              Cada biscoito carrega um pedaço de{' '}
+              <span className="text-secondary-rose font-normal">carinho</span>
             </h1>
 
             <p className="font-secondary text-lg md:text-xl text-text-secondary max-w-2xl mx-auto">
