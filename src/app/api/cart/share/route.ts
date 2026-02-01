@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
         product_name: item.name,
         quantity: item.quantity,
         price: item.price,
+        image: item.image || null,
         customization: item.customization || null,
       })),
       subtotal,
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Gerar URL
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '')
     const url = `${baseUrl}/c/${shortCode}`
 
     return NextResponse.json({

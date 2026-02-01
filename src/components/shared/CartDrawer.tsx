@@ -126,22 +126,36 @@ Pode me ajudar a finalizar?`
                   key={item.id}
                   className="flex gap-4 p-4 bg-glass-cream backdrop-blur-md rounded-modern shadow-soft"
                 >
-                  {/* Product Image Placeholder */}
-                  <div className="w-20 h-20 bg-primary-sage-light/20 rounded-modern flex items-center justify-center shrink-0">
-                    <ShoppingBag className="w-8 h-8 text-primary-sage/40" />
+                  {/* Product Image */}
+                  <div className="w-20 h-20 bg-primary-sage-light/20 rounded-modern flex items-center justify-center shrink-0 overflow-hidden">
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <ShoppingBag className="w-8 h-8 text-primary-sage/40" />
+                    )}
                   </div>
 
                   {/* Product Info */}
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-secondary font-semibold text-text-primary text-sm mb-1">
+                    <h4 className="font-secondary font-semibold text-text-primary text-sm mb-1 line-clamp-2">
                       {item.name}
                     </h4>
-                    <p className="font-secondary text-secondary-rose font-bold text-sm mb-2">
-                      {formatPrice(item.price)}
-                    </p>
+                    {item.price > 0 ? (
+                      <p className="font-secondary text-secondary-rose font-bold text-sm mb-2">
+                        {formatPrice(item.price)}
+                      </p>
+                    ) : (
+                      <p className="font-secondary text-primary-sage font-medium text-xs mb-2">
+                        Sob consulta
+                      </p>
+                    )}
 
                     {item.customization && (
-                      <p className="font-secondary text-xs text-text-secondary mb-2">
+                      <p className="font-secondary text-xs text-text-secondary mb-2 italic">
                         {item.customization}
                       </p>
                     )}

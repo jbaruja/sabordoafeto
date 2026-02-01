@@ -2,7 +2,7 @@
 
 import { useState, useRef, TouchEvent } from 'react'
 import Link from 'next/link'
-import { Gift, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Gift, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useCartStore } from '@/stores/cartStore'
@@ -16,7 +16,7 @@ interface ProductCardProps {
   image?: string
   images?: string[]
   onViewDetails?: () => void
-  variant?: 'default' | 'featured'  // Nova prop para variante
+  variant?: 'default' | 'featured' | 'personalizados'
 }
 
 export function ProductCard({
@@ -45,15 +45,18 @@ export function ProductCard({
       ? [image]
       : []
 
+  // Detectar categoria personalizados automaticamente
+  const isPersonalizados = variant === 'personalizados' || category === 'personalizados'
+
   const handleAddToCart = () => {
     addItem({
       id,
       name,
-      price,
+      price: isPersonalizados ? 0 : price,
       quantity: 1,
       image: allImages[0] || image,
+      customization: isPersonalizados ? 'Sob consulta via WhatsApp' : undefined,
     })
-    // Abrir carrinho automaticamente
     openCart()
   }
 
@@ -100,7 +103,6 @@ export function ProductCard({
       prevImage()
     }
 
-    // Reset
     touchStartX.current = null
     touchEndX.current = null
   }
@@ -109,6 +111,9 @@ export function ProductCard({
   const categoryLink = category
     ? `/produtos#category-${category}`
     : '/produtos'
+
+  // WhatsApp link para personalizados
+  const whatsappLink = `https://wa.me/5547991044121?text=Olá! Gostaria de saber mais sobre o produto personalizado: ${encodeURIComponent(name)}`
 
   return (
     <Card className="group bg-glass-white backdrop-blur-lg border-0 shadow-soft hover:shadow-float hover:-translate-y-2 transition-all duration-300 cursor-pointer rounded-modern-lg overflow-hidden">
@@ -197,16 +202,26 @@ export function ProductCard({
                 </Button>
               </Link>
             </div>
+          ) : isPersonalizados ? (
+            /* Variante Personalizados (sem preço, botão WhatsApp) */
+            <div className="pt-3 space-y-3">
+              <div className="flex items-center gap-2 text-primary-sage">
+                <MessageCircle className="w-4 h-4" />
+                <span className="font-secondary text-sm font-medium">Valor sob consulta</span>
+              </div>
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                <Button
+                  size="sm"
+                  className="w-full bg-gradient-to-b from-primary-sage to-primary-sage-dark hover:from-primary-sage-dark hover:to-[#6b7a5e] text-white shadow-soft"
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Personalizar via WhatsApp
+                </Button>
+              </a>
+            </div>
           ) : (
             /* Variante Default (com preço e botões) */
             <div className="pt-3 space-y-3">
-              {/* Categoria */}
-              {category && (
-                <span className="inline-block px-3 py-1 bg-primary-sage-light/20 text-primary-sage text-xs font-secondary font-medium rounded-full">
-                  {category}
-                </span>
-              )}
-
               <p className="font-secondary text-secondary-rose">
                 <span className="text-lg font-medium">R$</span>
                 <span className="text-3xl font-bold ml-1">

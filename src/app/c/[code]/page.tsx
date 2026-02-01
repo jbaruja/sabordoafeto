@@ -76,6 +76,7 @@ export default async function SharedCartPage({ params }: PageProps) {
       product_name: string
       quantity: number
       price: number
+      image?: string
       customization?: string
     }>
     subtotal: number
@@ -109,9 +110,8 @@ export default async function SharedCartPage({ params }: PageProps) {
             </h1>
             <div className="flex justify-center">
               <span
-                className={`inline-block px-4 py-2 rounded-lg border font-secondary text-sm font-medium ${
-                  statusColors[cart.status as keyof typeof statusColors]
-                }`}
+                className={`inline-block px-4 py-2 rounded-lg border font-secondary text-sm font-medium ${statusColors[cart.status as keyof typeof statusColors]
+                  }`}
               >
                 {statusLabels[cart.status as keyof typeof statusLabels]}
               </span>
@@ -139,9 +139,17 @@ export default async function SharedCartPage({ params }: PageProps) {
                       key={index}
                       className="flex gap-4 pb-4 border-b last:border-b-0 last:pb-0"
                     >
-                      {/* Imagem Placeholder */}
-                      <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-secondary-rose-light to-primary-sage-light flex items-center justify-center flex-shrink-0">
-                        <Package className="w-8 h-8 text-white" />
+                      {/* Imagem */}
+                      <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-secondary-rose-light to-primary-sage-light flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={item.product_name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <Package className="w-8 h-8 text-white" />
+                        )}
                       </div>
 
                       {/* Informações */}
