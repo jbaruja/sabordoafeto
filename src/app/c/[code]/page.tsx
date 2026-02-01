@@ -1,14 +1,17 @@
-import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { MessageCircle, Calendar, User, Phone, Mail, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
+// Force dynamic rendering - essential for this route to work
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 interface PageProps {
-  params: {
+  params: Promise<{
     code: string
-  }
+  }>
 }
 
 async function getSharedCart(code: string) {
@@ -33,7 +36,8 @@ async function getSharedCart(code: string) {
 }
 
 export default async function SharedCartPage({ params }: PageProps) {
-  const cart = await getSharedCart(params.code)
+  const { code } = await params
+  const cart = await getSharedCart(code)
 
   if (!cart) {
     notFound()
