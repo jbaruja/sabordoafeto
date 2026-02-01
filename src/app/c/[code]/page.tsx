@@ -8,19 +8,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-interface PageProps {
-  params: Promise<{
-    code: string
-  }>
-}
-
 async function getSharedCart(code: string) {
+  console.log('Fetching cart with code:', code)
+
   // Buscar carrinho
   const { data: cart, error } = await supabase
     .from('shared_carts')
     .select('*')
     .eq('short_code', code)
     .single()
+
+  console.log('Cart result:', { cart, error })
 
   if (error || !cart) {
     return null
@@ -35,9 +33,9 @@ async function getSharedCart(code: string) {
   return cart
 }
 
-export default async function SharedCartPage({ params }: PageProps) {
-  const { code } = await params
-  const cart = await getSharedCart(code)
+export default async function SharedCartPage(props: { params: Promise<{ code: string }> }) {
+  const params = await props.params
+  const cart = await getSharedCart(params.code)
 
   if (!cart) {
     notFound()
